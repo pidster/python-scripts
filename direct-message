@@ -19,9 +19,8 @@
 import sys
 import tweepy
 from os import path, access, R_OK
-from os.path import expanduser
 
-home = expanduser('~')
+home = path.expanduser('~')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Properties file in user home directory '.twitter-api.properties'
@@ -50,19 +49,21 @@ else:
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Check for input as an argument or via STDIN
-# 
+#
+
 user = ''
 message = ''
 
 try:
     user = sys.argv[1]
     message = sys.argv[2]
+
 except IndexError:
     line = raw_input()
     pair = line.split(' ', 1)
     user = pair[1]
     message = pair[2]
-    
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use the tweepy package to update twitter status with 'message'
@@ -71,7 +72,7 @@ try:
     auth = tweepy.OAuthHandler(config['consumer.key'], config['consumer.secret'])
     auth.set_access_token(config['access.key'], config['access.secret'])
     api = tweepy.API(auth)
-    api.send_direct_message(user, message)
+    api.send_direct_message(screen_name=user, text=message)
     sys.exit(0)
 
 except tweepy.error.TweepError as err:
