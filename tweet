@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+#
+
+
+import sys
+import tweepy
+from os import path, access, R_OK
+from os.path import expanduser
+
+home = expanduser('~')
+
+# Properties file in user home directory '.twitter-api.properties'
+# Contains Twitter API credentials for the user running the script
+# 
+# consumer.key=AAAAAAAAAAAAAAAA
+# consumer.secret=AAAAAAAAAAAAAAAA
+# access.key=AAAAAAAAAAAAAAAA
+# access.secret=AAAAAAAAAAAAAAA
+# 
+propertiesFile = home + '/.twitter-api.properties'
+config = {}
+
+if path.isfile(propertiesFile) and access(propertiesFile, R_OK):
+    try:
+        with open(propertiesFile) as file:
+            for line in file:
+                (key, val) = line.split('=')
+                config[key] = val.replace('\n', '')
+    except IOError as ioe:
+        print ioe.args
+        sys.exit(1)
+else:
+    print 'Missing or unreadable properties at: ' + propertiesFile
+    sys.exit(1)
+
+message = ''
+
+try:
+    message = sys.argv[1]
+except IndexError:
+    message = raw_input()
+
+try:
+    auth = tweepy.OAuthHandler(config['consumer.key'], config['consumer.secret'])
+    auth.set_access_token(config['access.key'], config['access.secret'])
+    api = tweepy.API(auth)
+    api.update_status(message)
+    sys.exit(0)
+
+except tweepy.error.TweepError as err:
+    print err.args[0]
+    sys.exit(1)
